@@ -201,8 +201,7 @@ function OpenMobileParkingActionsMenu()
         {label = _U('billing'),    value = 'billing'},
         {label = _U('ticket'),     value = 'ticket_vehicle'},
         {label = _U('boot'),       value = 'boot_vehicle'},
-        {label = _U('unboot'),     value = 'unboot_vehicle'},
-        {label = _U('hijack'),     value = 'hijack_vehicle'}
+        {label = _U('unboot'),     value = 'unboot_vehicle'}
 
       }
     },
@@ -234,71 +233,47 @@ function OpenMobileParkingActionsMenu()
       end
 
       if data.current.value == 'ticket_vehicle' then
-      	if IsPedInAnyVehicle(GetPlayerPed(-1), true) then
-      		local currentVehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
-      		TriggerServerEvent('esx_parkingjob:ticketCurrentCar', GetVehicleNumberPlateText(currentVehicle))
-      	else
-      		ESX.ShowNotification("Please get into a vehicle before trying to write a ticket.")
-      	end
+        local playerPed = GetPlayerPed(-1)
+        local coords    = GetEntityCoords(playerPed)
+        local vehicle   = GetClosestVehicle(coords.x,  coords.y,  coords.z,  3.0,  0,  71)
+          ESX.ShowNotification("Writing ticket...")
+          Citizen.Wait(5000)
+          ESX.ShowNotification("Signing bottom...")
+          Citizen.Wait(2000)
+          ESX.ShowNotification("Tearing off ticket...")
+          Citizen.Wait(1000)
+          ESX.ShowNotification("Putting ticket under wipers")
+          Citizen.Wait(2000)
+      		TriggerServerEvent('esx_parkingjob:ticketCurrentCar', GetVehicleNumberPlateText(vehicle))
      end
 
       if data.current.value == 'boot_vehicle' then
-      	if IsPedInAnyVehicle(GetPlayerPed(-1), true) then
-			local currentVehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
-			SetEntityAsMissionEntity(currentVehicle, true, true)
-			SetVehicleBurnout(currentVehicle, true)
-			SetVehicleTyreBurst(currentVehicle, 4, true, 1000.0)
-            TriggerServerEvent('esx_parkingjob:bootCurrentCar', GetVehicleNumberPlateText(currentVehicle))
-			--ESX.ShowNotification("Vehicle ~r~".. GetVehicleNumberPlateText(currentVehicle).."~s~ has been booted. You may now step out.")
-            Citizen.Wait(30000)
-		else
-			ESX.ShowNotification("Please get into a vehicle before trying to boot it.")
-		end
+          ESX.ShowNotification("Getting boot...")
+          Citizen.Wait(4000)
+          ESX.ShowNotification("Attaching boot...")
+          Citizen.Wait(5000)
+          local playerPed = GetPlayerPed(-1)
+			   local coords    = GetEntityCoords(playerPed)
+        local vehicle   = GetClosestVehicle(coords.x,  coords.y,  coords.z,  3.0,  0,  71)
+			   SetEntityAsMissionEntity(vehicle, true, true)
+			   SetVehicleBurnout(vehicle, true)
+			   SetVehicleTyreBurst(vehicle, 4, true, 1000.0)
+          TriggerServerEvent('esx_parkingjob:bootCurrentCar', GetVehicleNumberPlateText(vehicle))
       end
 
 
       if data.current.value == 'unboot_vehicle' then
-      	if IsPedInAnyVehicle(GetPlayerPed(-1), true) then
-			local currentVehicle = GetVehiclePedIsIn(GetPlayerPed(-1), false)
-			SetEntityAsMissionEntity(currentVehicle, true, true)
-			SetVehicleBurnout(currentVehicle, false)
-			SetVehicleTyreFixed(currentVehicle, 4)
-			ESX.ShowNotification("Vehicle ~g~".. GetVehicleNumberPlateText(currentVehicle).."~s~ has been de-booted. You may now step out.")
-            Citizen.Wait(30000)
-		else
-			ESX.ShowNotification("Please get into a vehicle before trying to unboot it.")
-		end
+          ESX.ShowNotification("Removing boot...")
+          Citizen.Wait(10000)
+          local playerPed = GetPlayerPed(-1)
+			   local coords    = GetEntityCoords(playerPed)
+         local vehicle   = GetClosestVehicle(coords.x,  coords.y,  coords.z,  3.0,  0,  71)
+			   SetEntityAsMissionEntity(vehicle, true, true)
+			   SetVehicleBurnout(vehicle, false)
+			   SetVehicleTyreFixed(vehicle, 4)
+			   ESX.ShowNotification("Vehicle ~g~".. GetVehicleNumberPlateText(vehicle).."~s~ has been de-booted. You may now step out.")
       end
-
-      if data.current.value == 'hijack_vehicle' then
-
-        local playerPed = GetPlayerPed(-1)
-        local coords    = GetEntityCoords(playerPed)
-
-        if IsAnyVehicleNearPoint(coords.x, coords.y, coords.z, 5.0) then
-
-          local vehicle = nil
-
-          if IsPedInAnyVehicle(playerPed, false) then
-            vehicle = GetVehiclePedIsIn(playerPed, false)
-          else
-            vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 5.0, 0, 71)
-          end
-
-          if DoesEntityExist(vehicle) then
-            TaskStartScenarioInPlace(playerPed, "WORLD_HUMAN_WELDING", 0, true)
-            Citizen.CreateThread(function()
-              Citizen.Wait(10000)
-              SetVehicleDoorsLocked(vehicle, 1)
-              SetVehicleDoorsLockedForAllPlayers(vehicle, false)
-              ClearPedTasksImmediately(playerPed)
-              ESX.ShowNotification(_U('vehicle_unlocked'))
-            end)
-          end
-
-        end
-
-      end      
+      
 
       
 
@@ -475,22 +450,20 @@ end
 
 RegisterNetEvent('esx_parkingjob:doMoney')
 AddEventHandler('esx_parkingjob:doMoney', function()
-	TriggerServerEvent('esx_society:depositMoney', 'parking', 150)
+  TriggerServerEvent('esx_addonaccount:getSharedAccount', 'society_parking', function(account)
+      account.addMoney(150)
+    end)
 end)
 
 RegisterNetEvent('esx_parkingjob:doCivInvoice')
 AddEventHandler('esx_parkingjob:doCivInvoice', function(player)
-	TriggerServerEvent('esx_billing:sendBill', player, 'society_parking', _U('parking'), 150)
+	TriggerServerEvent('esx_billing:sendBill', player, 'society_parking', _U('parking'), 500)
 end)
 
-RegisterNetEvent('esx_parkingjob:doBootMoney')
-AddEventHandler('esx_parkingjob:doBootMoney', function()
-  TriggerServerEvent('esx_society:depositMoney', 'parking', 500)
-end)
 
 RegisterNetEvent('esx_parkingjob:doCivBootInvoice')
 AddEventHandler('esx_parkingjob:doCivBootInvoice', function(player)
-  TriggerServerEvent('esx_billing:sendBill', player, 'society_parking', _U('parking'), 1000)
+  TriggerServerEvent('esx_billing:sendBill', player, 'society_parking', _U('parking'), 1250)
 end)
 
 RegisterNetEvent('esx_parkingjob:doCivBootNotify')

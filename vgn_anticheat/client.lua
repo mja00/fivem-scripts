@@ -1,4 +1,26 @@
 ESX = nil
+local PlayerData = {}
+
+--Setting perms locally
+local noRemove = false
+local noCheck = false
+
+Citizen.CreateThread(function()
+    TriggerServerEvent("vgn:getNoRemoveAce")
+end)
+Citizen.CreateThread(function()
+    TriggerServerEvent("vgn:getNoCheckAce")
+end)
+
+RegisterNetEvent("vgn:getNoRemoveAceReturn")
+AddEventHandler("vgn:getNoRemoveAceReturn", function(isAllowed)
+    noRemove = isAllowed
+end)
+RegisterNetEvent("vgn:getNoCheckAceReturn")
+AddEventHandler("vgn:getNoCheckAceReturn", function(isAllowed)
+    noCheck = isAllowed
+end)
+
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
 -- Invis check
@@ -14,39 +36,46 @@ end)]]
 -- God mode check
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
-    Citizen.Wait(10000)
-    TriggerEvent('vgn_realhealth:pauseReal')
-    local prevHealth = GetEntityHealth(GetPlayerPed(-1))
-    local playerCoords = GetEntityCoords(GetPlayerPed(-1))
-    StartEntityFire(GetPlayerPed(-1))
-    local randomAmt = math.random(30,100)
-    for i=1, 40, 1 do
-        Citizen.Wait(1)
-        SetEntityCoords(GetPlayerPed(-1), playerCoords.x, playerCoords.y, playerCoords.z+randomAmt)
-        if i == 1 then
-            StartEntityFire(GetPlayerPed(-1))
-        end
-        if i == 35 then
-            StopEntityFire(GetPlayerPed(-1))
-        end
-    end
-    Citizen.Wait(100)
-    SetEntityCoords(GetPlayerPed(-1), playerCoords.x, playerCoords.y, playerCoords.z)
-    Citizen.Wait(10)
-    if GetEntityHealth(GetPlayerPed(-1)) < 200 then
-        SetEntityHealth(GetPlayerPed(-1), prevHealth)
-        TriggerServerEvent('vgn:godModePass')
+    PlayerData = xPlayer
+    if noCheck == false then
+      Citizen.Wait(15000)
+      TriggerEvent('vgn_realhealth:pauseReal')
+      local prevHealth = GetEntityHealth(GetPlayerPed(-1))
+      local playerCoords = GetEntityCoords(GetPlayerPed(-1))
+      StartEntityFire(GetPlayerPed(-1))
+      local randomAmt = math.random(30,100)
+      for i=1, 40, 1 do
+          Citizen.Wait(1)
+          SetEntityCoords(GetPlayerPed(-1), playerCoords.x, playerCoords.y, playerCoords.z+randomAmt)
+          if i == 1 then
+              StartEntityFire(GetPlayerPed(-1))
+          end
+          if i == 35 then
+              StopEntityFire(GetPlayerPed(-1))
+          end
+      end
+      Citizen.Wait(100)
+      SetEntityCoords(GetPlayerPed(-1), playerCoords.x, playerCoords.y, playerCoords.z)
+      Citizen.Wait(10)
+      if GetEntityHealth(GetPlayerPed(-1)) < 200 then
+          SetEntityHealth(GetPlayerPed(-1), prevHealth)
+          TriggerServerEvent('vgn:godModePass')
+      else
+          TriggerServerEvent('vgn:godModeFail')
+      end
     else
-        TriggerServerEvent('vgn:godModeFail')
+      ESX.ShowNotification("You bypass the god check")
     end
 
+end)
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+    PlayerData.job = job
 end)
 
 --Get job
-RegisterNetEvent('esx:setJob')
-AddEventHandler('esx:setJob', function(job)
-  PlayerData.job = job
-end)
+
 
 
 RegisterNetEvent('vgn:adminGodmodeCheck')
@@ -78,49 +107,53 @@ AddEventHandler('vgn:adminGodmodeCheck', function()
 
 end)
 
+
 -- Illegal weapon detection
 Citizen.CreateThread(function()
     while true do
         local currentPed = GetPlayerPed(-1)
         Citizen.Wait(5000)
-        if PlayerData.job.name ~= 'police' or PlayerData.job.name ~= 'ambulance' then
-            if HasPedGotWeapon(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER"))
-                TriggerServerEvent('vgn:illegalWeapon', "Grenade Launcher")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER_SMOKE"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER_SMOKE"))
-                TriggerServerEvent('vgn:illegalWeapon', "Grenade Launcher Smoke")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_RPG"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_RPG"))
-                TriggerServerEvent('vgn:illegalWeapon', "RPG")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_MINIGUN"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_MINIGUN"))
-                TriggerServerEvent('vgn:illegalWeapon', "Minigun")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_STICKYBOMB"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_STICKYBOMB"))
-                TriggerServerEvent('vgn:illegalWeapon', "Stickybomb")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_HOMINGLAUNCHER"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_HOMINGLAUNCHER"))
-                TriggerServerEvent('vgn:illegalWeapon', "Homing RPG")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_PROXMINE"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_PROXMINE"))
-                TriggerServerEvent('vgn:illegalWeapon', "Proximity Mine")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_RAILGUN"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_RAILGUN"))
-                TriggerServerEvent('vgn:illegalWeapon', "Railgun")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_SNIPERRIFLE"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_SNIPERRIFLE"))
-                TriggerServerEvent('vgn:illegalWeapon', "Sniper Rifle")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_HEAVYSNIPER"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_HEAVYSNIPER"))
-                TriggerServerEvent('vgn:illegalWeapon', "Heavy Sniper")
-            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"), false) then
-                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"))
-                TriggerServerEvent('vgn:illegalWeapon', "Compact Grenade Launcher")
-            end
-        else
-            --Do nothing, or something else if they're a cop. Do what you want I'm a comment not a cop, unlike the person who'd be having this done on them.
-        end            
+        if PlayerData.job.name ~= nil then
+	        if noRemove == false then
+	            if HasPedGotWeapon(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Grenade Launcher")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER_SMOKE"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER_SMOKE"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Grenade Launcher Smoke")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_RPG"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_RPG"))
+	                TriggerServerEvent('vgn:illegalWeapon', "RPG")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_MINIGUN"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_MINIGUN"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Minigun")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_STICKYBOMB"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_STICKYBOMB"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Stickybomb")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_HOMINGLAUNCHER"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_HOMINGLAUNCHER"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Homing RPG")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_PROXMINE"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_PROXMINE"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Proximity Mine")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_RAILGUN"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_RAILGUN"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Railgun")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_SNIPERRIFLE"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_SNIPERRIFLE"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Sniper Rifle")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_HEAVYSNIPER"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_HEAVYSNIPER"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Heavy Sniper")
+	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"), false) then
+	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"))
+	                TriggerServerEvent('vgn:illegalWeapon', "Compact Grenade Launcher")
+	            end
+	        else
+	            --Do nothing, or something else if they're a cop. Do what you want I'm a comment not a cop, unlike the person who'd be having this done on them.
+	        end
+	    else
+	    end            
     end
 end)
 

@@ -1,7 +1,7 @@
 ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-RegisterServerEvent('vgn:InvisDetected')
+--[[RegisterServerEvent('vgn:InvisDetected')
 AddEventHandler('vgn:InvisDetected', function()
 	local xPlayer = ESX.GetPlayerFromId(source)
 	if xPlayer.getPermissions() < 3 then
@@ -19,7 +19,7 @@ AddEventHandler('vgn:InvisDetected', function()
 			function(rowsChanged)
 			end)
 	end
-end)
+end)--]]
 
 RegisterServerEvent('vgn:godModePass')
 AddEventHandler('vgn:godModePass', function()
@@ -31,47 +31,115 @@ end)
 RegisterServerEvent('vgn:godModeFail')
 AddEventHandler('vgn:godModeFail', function()
 	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.getPermissions() < 3 then
-		Citizen.Trace("\n\n"..xPlayer.getName().." has been kicked for godmode.\n\n")
-		TriggerEvent('DiscordBot:ToDiscord', 'kill', 'Godmode Check', xPlayer.name..' has failed the godmode check and was kicked.', '', true)
-		--xPlayer.kick("Possible Modmenu detected. Cheating is not tolerated on VGN.   [Failed godmode check]")
-		MySQL.Async.execute(
-			'INSERT INTO vgn_anticheat (identifier, name, offense, details) VALUES (@identifier, @name, @offense, @details)',
-			{
-				['@identifier'] = xPlayer.identifier,
-				['@name'] = xPlayer.name,
-				['@offense'] = 'Godmode check',
-				['@details'] = 'Failed',
-			},
-			function(rowsChanged)
-			end)
-	end
+  if not IsPlayerAceAllowed(source, "ac.noKick") then
+    if xPlayer.getPermissions() < 3 then
+      Citizen.Trace("\n"..xPlayer.getName().." has been kicked for godmode.")
+      TriggerEvent('DiscordBot:ToDiscord', 'kill', 'Godmode Check', xPlayer.name..' has failed the godmode check and was kicked.', '', true)
+      xPlayer.kick("Possible Modmenu detected. Cheating is not tolerated on VGN.   [Failed godmode check]")
+      MySQL.Async.execute(
+        'INSERT INTO vgn_anticheat (identifier, name, offense, details) VALUES (@identifier, @name, @offense, @details)',
+        {
+          ['@identifier'] = xPlayer.identifier,
+          ['@name'] = xPlayer.name,
+          ['@offense'] = 'Godmode check',
+          ['@details'] = 'Failed',
+        },
+        function(rowsChanged)
+        end)
+    end
+  end
 end)
 
 TriggerEvent('es:addAdminCommand', 'godmodecheck', 3, function(source, args, user)
-	--TriggerClientEvent("chatMessage", -1, "VGN", {255, 0, 0}, "An admin has initiated a godmode check. Standby")
+	TriggerClientEvent("chatMessage", -1, "VGN", {255, 0, 0}, "An admin has initiated a godmode check. Standby")
 	TriggerClientEvent('vgn:adminGodmodeCheck', -1)
 end, function(source, args, user)
-	TriggerClientEvent("chatMessage", source, "", {242, 211, 13}, "You do not have permission for this command.")
+  local xPlayer = ESX.GetPlayerFromId(source)
+  if xPlayer.identifier == "steam:1100001032438e6" then
+    TriggerClientEvent('vgn:adminGodmodeCheck', -1)
+    TriggerClientEvent("chatMessage", -1, "VGN", {255, 0, 0}, "Danny S. has initiated a godmode check. This is most likely a test. Standby. ")
+  else 
+    TriggerClientEvent("chatMessage", source, "", {242, 211, 13}, "You do not have permission for this command.")
+  end
+end)
+
+TriggerEvent('es:addAdminCommand', 'aclookup', 3, function(source, args, user)
+    if args[2] == nil then
+      TriggerClientEvent("chatMessage", source, "AC", {255,0,0}, "You must provide a player ID.")
+    else
+      local xPlayer = ESX.GetPlayerFromId(args[2])
+      MySQL.Async.fetchAll('SELECT * FROM vgn_anticheat WHERE identifier = @identifier ORDER BY id DESC LIMIT 1',
+        {
+          ['@identifier'] = xPlayer.identifier
+        },
+        function(result)
+          TriggerClientEvent("chatMessage", source, result[1].name, {255, 0, 0}, "Latest infraction: "..result[1].offense.." | Details: "..result[1].details)
+        end)
+    end
+end, function(source, args, user)
+  if IsPlayerAceAllowed(source, "ac.lookup") then
+    if args[2] == nil then
+      TriggerClientEvent("chatMessage", source, "AC", {255,0,0}, "You must provide a player ID.")
+    else
+      local xPlayer = ESX.GetPlayerFromId(args[2])
+      MySQL.Async.fetchAll('SELECT * FROM vgn_anticheat WHERE identifier = @identifier ORDER BY id DESC LIMIT 1',
+        {
+          ['@identifier'] = xPlayer.identifier
+        },
+        function(result)
+          TriggerClientEvent("chatMessage", source, result[1].name, {255, 0, 0}, "Latest infraction: "..result[1].offense.." | Details: "..result[1].details)
+        end)
+    end
+  else
+    local xPlayer = ESX.GetPlayerFromId(source)
+    MySQL.Async.fetchAll('SELECT * FROM vgn_anticheat WHERE identifier = @identifier ORDER BY id DESC LIMIT 1',
+      {
+        ['@identifier'] = xPlayer.identifier
+      },
+      function(result)
+        TriggerClientEvent("chatMessage", source, result[1].name, {255, 0, 0}, "Latest infraction: "..result[1].offense.." | Details: "..result[1].details)
+      end)
+  end
 end)
 
 RegisterServerEvent('vgn:illegalWeapon')
 AddEventHandler('vgn:illegalWeapon', function(weapon)
 	local xPlayer = ESX.GetPlayerFromId(source)
-	if xPlayer.getPermissions() < 3 then
-		Citizen.Trace("\n\n"..xPlayer.getName().." has been kicked for illegal weapon. ["..weapon.."]\n\n")
-		TriggerEvent('DiscordBot:ToDiscord', 'kill', 'Illegal Weapon', xPlayer.name..' has an illegal weapon('..weapon..') and has been kicked.', '', true)
-		--xPlayer.kick("Possible Modmenu detected. Cheating is not tolerated on VGN.   [Illegal weapon: "..weapon.."]")
-		MySQL.Async.execute(
-			'INSERT INTO vgn_anticheat (identifier, name, offense, details) VALUES (@identifier, @name, @offense, @details)',
-			{
-				['@identifier'] = xPlayer.identifier,
-				['@name'] = xPlayer.name,
-				['@offense'] = 'Illegal Weapon',
-				['@details'] = weapon,
-			},
-			function(rowsChanged)
-			end)
-	end
+  if IsPlayerAceAllowed(source, "ac.noKick") then
+    Citizen.Trace("\nNo kick")
+  else
+    if xPlayer.getPermissions() < 3 then
+      Citizen.Trace("\n"..xPlayer.getName().." has been kicked for illegal weapon. ["..weapon.."]")
+      TriggerEvent('DiscordBot:ToDiscord', 'kill', 'Illegal Weapon', xPlayer.name..' has an illegal weapon('..weapon..') and has been kicked.', '', true)
+      --xPlayer.kick("Possible Modmenu detected. Cheating is not tolerated on VGN.   [Illegal weapon: "..weapon.."]")
+      MySQL.Async.execute(
+        'INSERT INTO vgn_anticheat (identifier, name, offense, details) VALUES (@identifier, @name, @offense, @details)',
+        {
+          ['@identifier'] = xPlayer.identifier,
+          ['@name'] = xPlayer.name,
+          ['@offense'] = 'Illegal Weapon',
+          ['@details'] = weapon,
+        },
+        function(rowsChanged)
+        end)
+    end
+  end
 end)
 
+
+RegisterServerEvent('vgn:getNoRemoveAce')
+AddEventHandler('vgn:getNoRemoveAce', function()
+  if IsPlayerAceAllowed(source, "ac.noRemove") then
+    TriggerClientEvent('vgn:getNoRemoveAceReturn', source, true)
+  else
+    TriggerClientEvent('vgn:getNoRemoveAceReturn', source, false)
+  end
+end)
+RegisterServerEvent("vgn:getNoCheckAce")
+AddEventHandler("vgn:getNoCheckAce", function()
+    if IsPlayerAceAllowed(source, "ac.noCheck") then
+        TriggerClientEvent("vgn:getNoCheckAceReturn", source, true)
+    else
+        TriggerClientEvent("vgn:getNoCheckAceReturn", source, false)
+    end
+end)

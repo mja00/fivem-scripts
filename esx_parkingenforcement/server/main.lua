@@ -34,7 +34,9 @@ AddEventHandler('esx_parkingjob:ticketCurrentCar', function(currentCar)
     end
       if vehCount == #veh then
       	TriggerClientEvent('esx:showNotification', source, "Ticket written for plate: "..currentCar)
-      	TriggerClientEvent('esx_parkingjob:doMoney', source)
+        TriggerEvent('esx_addonaccount:getSharedAccount', 'society_parking', function(account)
+          account.addMoney(250)
+        end)
       end
 end)
 
@@ -56,6 +58,8 @@ AddEventHandler('esx_parkingjob:bootCurrentCar', function(currentCar)
     end
       if vehCount == #veh then
         TriggerClientEvent('esx:showNotification', source, "Vehicle ~r~".. currentCar.."~s~ has been booted. You may now step out.")
-        TriggerClientEvent('esx_parkingjob:doBootMoney', source)
+        TriggerEvent('esx_addonaccount:getSharedAccount', 'society_parking', function(account)
+          account.addMoney(500)
+        end)
       end
 end)
