@@ -35,7 +35,7 @@ AddEventHandler('vgn:godModeFail', function()
     if xPlayer.getPermissions() < 3 then
       Citizen.Trace("\n"..xPlayer.getName().." has been kicked for godmode.")
       TriggerEvent('DiscordBot:ToDiscord', 'kill', 'Godmode Check', xPlayer.name..' has failed the godmode check and was kicked.', '', true)
-      xPlayer.kick("Possible Modmenu detected. Cheating is not tolerated on VGN.   [Failed godmode check]")
+      DropPlayer(source, "Possible Modmenu detected. Cheating is not tolerated on VGN.   [Failed godmode check]")
       MySQL.Async.execute(
         'INSERT INTO vgn_anticheat (identifier, name, offense, details) VALUES (@identifier, @name, @offense, @details)',
         {
@@ -111,7 +111,7 @@ AddEventHandler('vgn:illegalWeapon', function(weapon)
     if xPlayer.getPermissions() < 3 then
       Citizen.Trace("\n"..xPlayer.getName().." has been kicked for illegal weapon. ["..weapon.."]")
       TriggerEvent('DiscordBot:ToDiscord', 'kill', 'Illegal Weapon', xPlayer.name..' has an illegal weapon('..weapon..') and has been kicked.', '', true)
-      --xPlayer.kick("Possible Modmenu detected. Cheating is not tolerated on VGN.   [Illegal weapon: "..weapon.."]")
+      DropPlayer(source, "Possible Modmenu detected. Cheating is not tolerated on VGN.   [Illegal weapon: "..weapon.."]")
       MySQL.Async.execute(
         'INSERT INTO vgn_anticheat (identifier, name, offense, details) VALUES (@identifier, @name, @offense, @details)',
         {
