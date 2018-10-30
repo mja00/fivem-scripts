@@ -9,7 +9,7 @@ Citizen.CreateThread(function()
     TriggerServerEvent("vgn:getNoRemoveAce")
 end)
 Citizen.CreateThread(function()
-    TriggerServerEvent("vgn:getNoCheckAce")
+    TriggerServerEvent("vgn:getNoChe​ckAce")
 end)
 
 RegisterNetEvent("vgn:getNoRemoveAceReturn")
@@ -17,11 +17,11 @@ AddEventHandler("vgn:getNoRemoveAceReturn", function(isAllowed)
     noRemove = isAllowed
 end)
 RegisterNetEvent("vgn:getNoCheckAceReturn")
-AddEventHandler("vgn:getNoCheckAceReturn", function(isAllowed)
+AddEventHandler("vgn:g​etNoCheckAceReturn", function(isAllowed)
     noCheck = isAllowed
 end)
 
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+TriggerEvent('esx:getSh​aredObject', function(obj) ESX = obj end)
 
 -- Invis check
 --[[Citizen.CreateThread(function()
@@ -40,7 +40,7 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
     if noCheck == false then
       Citizen.Wait(15000)
       TriggerEvent('vgn_realhealth:pauseReal')
-      local prevHealth = GetEntityHealth(GetPlayerPed(-1))
+      local p​revHealth = GetEntityHealth(GetPlayerPed(-1))
       local playerCoords = GetEntityCoords(GetPlayerPed(-1))
       StartEntityFire(GetPlayerPed(-1))
       local randomAmt = math.random(30,100)
@@ -58,7 +58,7 @@ AddEventHandler('esx:playerLoaded', function(xPlayer)
       SetEntityCoords(GetPlayerPed(-1), playerCoords.x, playerCoords.y, playerCoords.z)
       Citizen.Wait(10)
       if GetEntityHealth(GetPlayerPed(-1)) < 200 then
-          SetEntityHealth(GetPlayerPed(-1), prevHealth)
+          SetEntityH​ealth(GetPlayerPed(-1), prevHealth)
           TriggerServerEvent('vgn:godModePass')
       else
           TriggerServerEvent('vgn:godModeFail')
@@ -79,7 +79,7 @@ end)
 
 
 RegisterNetEvent('vgn:adminGodmodeCheck')
-AddEventHandler('vgn:adminGodmodeCheck', function()
+AddEventHandler('vgn:adminGod​modeCheck', function()
     TriggerEvent('vgn_realhealth:pauseReal')
     local prevHealth = GetEntityHealth(GetPlayerPed(-1))
     local playerCoords = GetEntityCoords(GetPlayerPed(-1))
@@ -92,12 +92,12 @@ AddEventHandler('vgn:adminGodmodeCheck', function()
             StartEntityFire(GetPlayerPed(-1))
         end
         if i == 35 then
-            StopEntityFire(GetPlayerPed(-1))
+            StopEnti​tyFire(GetPlayerPed(-1))
         end
     end
     Citizen.Wait(100)
     SetEntityCoords(GetPlayerPed(-1), playerCoords.x, playerCoords.y, playerCoords.z)
-    Citizen.Wait(10)
+    Citiz​en.Wait(10)
     if GetEntityHealth(GetPlayerPed(-1)) < 200 then
         SetEntityHealth(GetPlayerPed(-1), prevHealth)
         TriggerServerEvent('vgn:godModePass')
@@ -117,12 +117,12 @@ Citizen.CreateThread(function()
 	        if noRemove == false then
 	            if HasPedGotWeapon(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER"), false) then
 	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER"))
-	                TriggerServerEvent('vgn:illegalWeapon', "Grenade Launcher")
+	                TriggerSe​rverEvent('vgn:illegalWeapon', "Grenade Launcher")
 	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER_SMOKE"), false) then
 	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_GRENADELAUNCHER_SMOKE"))
 	                TriggerServerEvent('vgn:illegalWeapon', "Grenade Launcher Smoke")
 	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_RPG"), false) then
-	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_RPG"))
+	                RemoveWeapon​FromPed(currentPed, GetHashKey("WEAPON_RPG"))
 	                TriggerServerEvent('vgn:illegalWeapon', "RPG")
 	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_MINIGUN"), false) then
 	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_MINIGUN"))
@@ -138,7 +138,7 @@ Citizen.CreateThread(function()
 	                TriggerServerEvent('vgn:illegalWeapon', "Proximity Mine")
 	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_RAILGUN"), false) then
 	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_RAILGUN"))
-	                TriggerServerEvent('vgn:illegalWeapon', "Railgun")
+	                TriggerServerEv​ent('vgn:illegalWeapon', "Railgun")
 	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_SNIPERRIFLE"), false) then
 	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_SNIPERRIFLE"))
 	                TriggerServerEvent('vgn:illegalWeapon', "Sniper Rifle")
@@ -146,7 +146,7 @@ Citizen.CreateThread(function()
 	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_HEAVYSNIPER"))
 	                TriggerServerEvent('vgn:illegalWeapon', "Heavy Sniper")
 	            elseif HasPedGotWeapon(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"), false) then
-	                RemoveWeaponFromPed(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"))
+	                RemoveWe​aponFromPed(currentPed, GetHashKey("WEAPON_COMPACTLAUNCHER"))
 	                TriggerServerEvent('vgn:illegalWeapon', "Compact Grenade Launcher")
 	            end
 	        else
@@ -154,8 +154,8 @@ Citizen.CreateThread(function()
 	        end
 	    else
 	    end            
-    end
-end)
+    end​
+end​)
 
 --[[Citizen.CreateThread(function()
     while true do

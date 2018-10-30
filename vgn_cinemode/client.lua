@@ -9,22 +9,22 @@ Citizen.CreateThread(function()
 	end
 end)
 
-Citizen.CreateThread(function()
+Citiz​​​en.Creat​eThread(function()
 	while true do
-		Citizen.Wait(0)
-		if isHudHidden then
-			DrawRect(0.0,  1.0,  2.0,  0.2,  0,0,0,255)
+		Citi​zen.Wait(0)
+		if isHudHid​den then
+			Draw​Rect(0.0,  1.0,  2.0,  0.2,  0,0,0,255)
 			DrawRect(0.0,  0.0,  2.0,  0.2,  0,0,0,255)
-			DisplayRadar(false)
+			Display​Radar(false)
 			--DisplayHud(false)
-			DisplayCash(false)
+			Displa​yCash(false)
 			DisplayAreaName(false)
 		end
 		if not isHudHidden then
 			DisplayRadar(true)
 			DisplayHud(true)
-			DisplayCash(false)
-			DisplayAreaName(true)
+			Display​Cash(false)
+			Displ​ayAreaName(true)
 		end
 	end
 end)

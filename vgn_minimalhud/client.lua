@@ -4,7 +4,7 @@ isHudHidden = false
 Citizen.CreateThread(function()
 
 	while ESX == nil do
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+		TriggerE​vent('e​sx:getSharedObject', function(obj) ESX = obj end)
 		Citizen.Wait(0)
 	end
 end)
@@ -12,27 +12,27 @@ end)
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(xPlayer)
     TriggerEvent('hud:hideCompass', true)
-		TriggerEvent('hud:hideStreet', true)
-		TriggerEvent('hud:hideVoice', true)
+		Trigge​rEvent('hud:hideStreet', true)
+		TriggerE​vent('hu​d:hideVoice', true)
 		TriggerEvent('hud:hideWatermark', true)
-		TriggerEvent('esx_status:setDisplay', 0.0)
+		Trigge​rEv​ent('esx_status:setDisplay', 0.0)
 		TriggerEvent('es:setMoneyDisplay', 0)
 		ESX.UI.HUD.SetDisplay(0.0)
   end)
 
 Citizen.CreateThread(function()
 	while true do
-		Citizen.Wait(0)
+		Citizen.​Wait(0)
 		if isHudHidden then
-			DisplayRadar(false)
-			--DisplayHud(false)
+			Disp​layRadar(false)
+			--Disp​layHud(false)
 			DisplayCash(false)
 			DisplayAreaName(false)
-		end
+		end​
 		if not isHudHidden then
 			DisplayRadar(true)
 			DisplayHud(true)
-			DisplayCash(false)
+			Display​Cash(false)
 			DisplayAreaName(true)
 		end
 	end

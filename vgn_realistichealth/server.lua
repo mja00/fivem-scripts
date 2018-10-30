@@ -1,3 +1,3 @@
-TriggerEvent('es:addCommand','ragdoll', function(source, args, user)
+TriggerEvent('es:addComm​and','ragdoll', function(source, args, user)
 
 end)
